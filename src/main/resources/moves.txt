@@ -1,0 +1,2 @@
+Sequence1=Move,Rotate,Move,Move,Move,Rotate
+Sequence2=Move,Move,Move,Rotate,Rotate,Move,Move,Move,Rotate,Move
