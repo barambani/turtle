@@ -13,6 +13,7 @@ object TurtleRun {
 
     import parsers._
 
+    
     lazy val sequence: Stream[Task, Option[Actions]] = 
       fileRows("src/main/resources/moves.txt") map parseSequence
 
@@ -24,6 +25,7 @@ object TurtleRun {
       Stream.emit[Task, Land](
         (Limits(10,7), Map[Tile, Outcome](Tile(2,3) -> Boom, Tile(4,5) -> Boom, Tile(6,2) -> Boom, Tile(9,5) -> Success))
       )
+
     
     lazy val printOption: Option[String] => Unit =
       x => println(x.getOrElse("Nothing to show"))
@@ -31,11 +33,12 @@ object TurtleRun {
     lazy val resultDescription: Position => Land => Actions => String =
       i => l => xs => s"${xs._1}: ${Turtle.run(i)(xs._2)(l)}"
 
-    lazy val results: Stream[Task, Option[String]] = (initial zip land) flatMap {
-      x =>
-        lazy val (i, l) = x
-        sequence map { _ map resultDescription(i)(l) }
-    }
+    
+    lazy val evalSequenceWithConfig: Position => Land => Stream[Task, Option[String]] =
+      i => l => sequence map { _ map resultDescription(i)(l) }
+
+    lazy val results: Stream[Task, Option[String]] = 
+      (initial zip land) flatMap { case (i, l) => evalSequenceWithConfig(i)(l) }
 
     (results map printOption).run.unsafeRun
   }
