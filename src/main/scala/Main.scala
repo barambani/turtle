@@ -14,7 +14,7 @@ object TurtleRun {
     import parsers._
 
     
-    lazy val sequence: Stream[Task, Option[Actions]] = 
+    lazy val sequences: Stream[Task, Option[Actions]] = 
       fileRows("src/main/resources/moves.txt") map parseSequence
 
     // The IO here is similar to the sequence's. I'm mocking those two
@@ -34,11 +34,11 @@ object TurtleRun {
       i => l => xs => s"${xs._1}: ${Turtle.run(i)(xs._2)(l)}"
 
     
-    lazy val evalSequenceWithConfig: Position => Land => Stream[Task, Option[String]] =
-      i => l => sequence map { _ map resultDescription(i)(l) }
+    lazy val evalSequencesWithConfig: Position => Land => Stream[Task, Option[String]] =
+      i => l => sequences map { _ map resultDescription(i)(l) }
 
     lazy val results: Stream[Task, Option[String]] = 
-      (initial zip land) flatMap { case (i, l) => evalSequenceWithConfig(i)(l) }
+      (initial zip land) flatMap { case (i, l) => evalSequencesWithConfig(i)(l) }
 
     (results map printOption).run.unsafeRun
   }
@@ -53,11 +53,9 @@ object TurtleRun {
   object parsers {
 
     val parseSequence: String => Option[Actions] = 
-      row => {
-        split(row)("=") match {
-          case n :: es :: Nil => (n, parseEffects(es).flatten).some
-          case _              => none
-        }
+      row => split(row)("=") match {
+        case n :: es :: Nil => (n, parseEffects(es).flatten).some
+        case _              => none
       }
     
     private val parseEffects: String => Seq[Option[ActionEffect]] =

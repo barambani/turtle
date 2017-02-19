@@ -14,7 +14,7 @@ object Turtle {
     final case class Limits(maxX: Int, maxY: Int)
 
     type Land = (Limits, Map[Tile, Outcome])
-    type ActionEffect = Rotate \/ Move
+    type ActionEffect = \/[Rotate,  Move]
     type Actions = (String, Seq[ActionEffect])
 
     sealed trait Outcome extends Product with Serializable
