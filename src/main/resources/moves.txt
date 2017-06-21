@@ -1,2 +1,3 @@
 Sequence1=Move,Rotate,Move,Move,Move,Rotate
 Sequence2=Move,Move,Move,Rotate,Rotate,Move,Move,Move,Rotate,Move
+Sequence3=Rotate,Rotate,Move,Move,Rotate,Rotate,Rotate,Move,Move,Rotate,Move,Rotate,Rotate,Rotate,Move,Move

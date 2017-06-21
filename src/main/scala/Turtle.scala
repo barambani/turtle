@@ -5,12 +5,14 @@ object Turtle {
 
   object model {
   
-    final case class Move()
-    final case class Rotate()
+    sealed trait Move
+    final case object Move extends Move
+
+    sealed trait Rotate
+    final case object Rotate extends Rotate
 
     final case class Tile(x: Int, y: Int)
     final case class Position(tile: Tile, dir: Direction)
-
     final case class Limits(maxX: Int, maxY: Int)
 
     type Land = (Limits, Map[Tile, Outcome])
@@ -18,16 +20,16 @@ object Turtle {
     type Actions = (String, Seq[ActionEffect])
 
     sealed trait Outcome extends Product with Serializable
-    case object Success extends Outcome
-    case object Boom extends Outcome
-    case object StillInDanger extends Outcome
-    case object OutsideTheLimits extends Outcome
+    final case object Success extends Outcome
+    final case object Boom extends Outcome
+    final case object StillInDanger extends Outcome
+    final case object OutsideTheLimits extends Outcome
 
     sealed trait Direction extends Product with Serializable
-    case object North extends Direction
-    case object East extends Direction
-    case object South extends Direction
-    case object West extends Direction
+    final case object North extends Direction
+    final case object East extends Direction
+    final case object South extends Direction
+    final case object West extends Direction
     
     lazy val move: Position => Position = 
       p => p.copy(tile = p match {
@@ -60,23 +62,23 @@ object Turtle {
     }
   
   private lazy val execAction: ActionEffect => Position => Position =
-    effect => pos => effect match {
-      case \/-(_) => move(pos)
-      case -\/(_) => rotate(pos)
-    }
+    effect => pos => effect.fold(
+      _ => rotate(pos),
+      _ => move(pos)
+    )
 
   private lazy val moveAndCheck: Land => ActionEffect => Position => \/[Outcome, Position] =
     land => effect => checkPosition(land) compose execAction(effect)
 
   @tailrec
-  private def runRec(i: Position)(as: Seq[ActionEffect])(l: Land): \/[Outcome, Position] =
-    if(as.isEmpty) -\/(StillInDanger)
-    else moveAndCheck(l)(as.head)(i) match {
-      case \/-(p)     => runRec(p)(as.tail)(l)
+  private def runRec(p: Position)(xs: Seq[ActionEffect])(l: Land): \/[Outcome, Position] =
+    if(xs.isEmpty) -\/(StillInDanger)
+    else moveAndCheck(l)(xs.head)(p) match {
+      case \/-(op)    => runRec(op)(xs.tail)(l)
       case r @ -\/(_) => r
     }
 
   lazy val run: Position => Seq[ActionEffect] => Land => Outcome =
-    i => as => l => runRec(i)(as)(l).fold(o => o, _ => StillInDanger) 
+    start => xs => l => runRec(start)(xs)(l).fold(identity, _ => StillInDanger) 
 }
 
