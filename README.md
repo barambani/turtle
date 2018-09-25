@@ -1,4 +1,7 @@
 # Turtle Challenge
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/873c18adc38b48ca819515172c97f998)](https://app.codacy.com/app/barambani/turtle?utm_source=github.com&utm_medium=referral&utm_content=barambani/turtle&utm_campaign=Badge_Grade_Dashboard)
+
 A turtle must walk through a minefield. Write a program that will read the initial game settings from one file and one or more sequences of moves from a different file, then for each move sequence, the program will output if the sequence leads to the success or failure of the little turtle.
 The program should also handle the scenario where the turtle doesn’t reach the exit point or doesn’t hit a mine.   
    
